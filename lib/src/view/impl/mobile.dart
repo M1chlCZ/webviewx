@@ -1,15 +1,12 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:webviewx/src/utils/utils.dart';
-
 import 'package:webview_flutter/webview_flutter.dart' as wf;
-
-import 'package:webviewx/src/view/interface.dart' as view_interface;
-import 'package:webviewx/src/controller/interface.dart' as ctrl_interface;
 import 'package:webviewx/src/controller/impl/mobile.dart';
+import 'package:webviewx/src/controller/interface.dart' as ctrl_interface;
+import 'package:webviewx/src/utils/utils.dart';
+import 'package:webviewx/src/view/interface.dart' as view_interface;
 
 /// Mobile implementation
 class WebViewX extends StatefulWidget implements view_interface.WebViewX {
@@ -41,8 +38,7 @@ class WebViewX extends StatefulWidget implements view_interface.WebViewX {
   /// Callback which returns a referrence to the [WebViewXController]
   /// being created.
   @override
-  final Function(ctrl_interface.WebViewXController controller)?
-      onWebViewCreated;
+  final Function(ctrl_interface.WebViewXController controller)? onWebViewCreated;
 
   /// A set of [EmbeddedJsContent].
   ///
@@ -118,8 +114,7 @@ class WebViewX extends StatefulWidget implements view_interface.WebViewX {
     this.dartCallBacks = const {},
     this.ignoreAllGestures = false,
     this.javascriptMode = JavascriptMode.unrestricted,
-    this.initialMediaPlaybackPolicy =
-        AutoMediaPlaybackPolicy.requireUserActionForAllMediaTypes,
+    this.initialMediaPlaybackPolicy = AutoMediaPlaybackPolicy.requireUserActionForAllMediaTypes,
     this.onPageStarted,
     this.onPageFinished,
     this.navigationDelegate,
@@ -142,8 +137,7 @@ class _WebViewXState extends State<WebViewX> {
   void initState() {
     super.initState();
 
-    if (Platform.isAndroid &&
-        widget.mobileSpecificParams.androidEnableHybridComposition) {}
+    if (Platform.isAndroid && widget.mobileSpecificParams.androidEnableHybridComposition) {}
 
     _ignoreAllGestures = widget.ignoreAllGestures;
     webViewXController = _createWebViewXController();
@@ -160,31 +154,17 @@ class _WebViewXState extends State<WebViewX> {
     //     ? wf.AutoMediaPlaybackPolicy.always_allow
     //     : wf.AutoMediaPlaybackPolicy.require_user_action_for_all_media_types;
 
-    void onWebResourceError(dynamic err) => widget.onWebResourceError!(
-          WebResourceError(
-            description: err.description,
-            errorCode: err.errorCode,
-            domain: err.domain,
-            errorType: WebResourceErrorType.values.singleWhere(
-              (value) => value.toString() == err.errorType.toString(),
-            ),
-            failingUrl: err.failingUrl,
-          ),
-        );
-
     FutureOr<wf.NavigationDecision> navigationDelegate(
       wf.NavigationRequest request,
     ) async {
       if (widget.navigationDelegate == null) {
-        webViewXController.value =
-            webViewXController.value.copyWith(source: request.url);
+        webViewXController.value = webViewXController.value.copyWith(source: request.url);
         return wf.NavigationDecision.navigate;
       }
 
       final delegate = await widget.navigationDelegate!.call(
         NavigationRequest(
-          content: NavigationContent(
-              request.url, webViewXController.value.sourceType),
+          content: NavigationContent(request.url, webViewXController.value.sourceType),
           isForMainFrame: request.isMainFrame,
         ),
       );
